@@ -46,7 +46,11 @@ class AppSdkViewSet(viewsets.ModelViewSet):
 class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        results = dict()
+        # normal stats
+        results1 = dict()
+
+        # norm stats
+        results2 = dict()
 
         # default
         sdk_ids = [33, 875, 2081]
@@ -62,7 +66,7 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
             sdk_slugs.append(item.slug)
         print(sdk_names)
 
-        # results["total"] = len(AppSdk.objects.filter(installed=1))
+        # results1["total"] = len(AppSdk.objects.filter(installed=1))
 
         # individual sdk's app count
         for indx1 in range(len(sdk_ids)):
@@ -81,7 +85,13 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
             sub_res["none"] = len(app_ids)-sum
 
             # add to the result
-            results[sdk_names[indx1]] = sub_res
+            results1[sdk_names[indx1]] = sub_res
+
+            # add norm results
+            sub_res2 = dict()
+            for indx in sub_res:
+                sub_res2[indx] = round(sub_res[indx]/len(app_ids)*100, 3)
+            results2[sdk_names[indx1]] = sub_res2
 
         # for none
         app_ids = AppSdk.objects.exclude(sdk_id__in=sdk_ids, installed=1).values_list('app_id', flat=True).distinct()
@@ -98,9 +108,21 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
         sub_res["none"] = len(app_ids) - sum
 
         # add to the results
-        results["none"] = sub_res
-        print(results)
-        return Response(json.dumps(results), status=HTTP_200_OK)
+        results1["none"] = sub_res
+
+        # add norm results
+        sub_res2 = dict()
+        for indx in sub_res:
+            sub_res2[indx] = round(sub_res[indx] / len(app_ids) * 100, 3)
+        results2["none"] = sub_res2
+
+        print("normal: ", results1)
+        print("norm: ", results2)
+
+        return Response(json.dumps({
+            "original": results1,
+            "norm": results2
+        }), status=HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
         # store sdk ids
@@ -132,11 +154,14 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
             return Response("Invalid url", status=HTTP_404_NOT_FOUND)
 
     def post(self, request):
-        # response
-        results = dict()
+        # original sdk stats
+        results1 = dict()
+
+        # norm sdk stats
+        results2 = dict()
 
         sdk_ids = request.data.get("sdk_ids")
-        print(sdk_ids)
+        print("sdk_ids: ", sdk_ids)
 
         if len(sdk_ids) == 0:
             return Response({}, status=HTTP_400_BAD_REQUEST)
@@ -144,9 +169,12 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
         sdk_names = []
         sdk_slugs = []
         for gateway in sdk_ids:
-            item = Sdk.objects.get(id=gateway)
+            try:
+                item = Sdk.objects.get(id=gateway)
+            except (Exception | ValueError) as err:
+                return Response({"error": err}, status=HTTP_400_BAD_REQUEST)
             if not item:
-                return Response("Invalid payment gateway", HTTP_400_BAD_REQUEST)
+                return Response({"error": "Invalid payment gateway"}, HTTP_400_BAD_REQUEST)
             sdk_names.append(item.name)
             sdk_slugs.append(item.slug)
         print(sdk_names)
@@ -164,7 +192,13 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
                 sub_res[sdk_names[indx2]] = apps
                 sum += apps
             sub_res["none"] = len(app_ids) - sum
-            results[sdk_names[indx1]] = sub_res
+            results1[sdk_names[indx1]] = sub_res
+
+            # add norm results
+            sub_res2 = dict()
+            for indx in sub_res:
+                sub_res2[indx] = round(sub_res[indx] / len(app_ids) * 100, 3)
+            results2[sdk_names[indx1]] = sub_res2
 
         # for none
         app_ids = AppSdk.objects.exclude(sdk_id__in=sdk_ids, installed=1).values_list('app_id', flat=True).distinct()
@@ -175,6 +209,16 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
             sub_res[sdk_names[indx1]] = apps
             sum += apps
         sub_res["none"] = len(app_ids) - sum
-        results["none"] = sub_res
-        print(results)
-        return Response(json.dumps(results), status=HTTP_200_OK)
+        results1["none"] = sub_res
+
+        # add norm results
+        sub_res2 = dict()
+        for indx in sub_res:
+            sub_res2[indx] = round(sub_res[indx] / len(app_ids) * 100, 3)
+        results2["none"] = sub_res2
+
+        print(results1)
+        return Response(json.dumps({
+            "original": results1,
+            "norm": results2
+        }), status=HTTP_200_OK)
