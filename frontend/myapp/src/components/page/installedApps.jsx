@@ -2,12 +2,24 @@ import React, { useEffect, useState } from 'react'
 import '../../App.css';
 import Navbar from '../navbar';
 import { useParams } from 'react-router-dom';
+import ReactPaginate from 'react-paginate';
 
 const InstalledApps = (pops) => {
   let {id1, id2} = useParams()
   const [sdks, setSdks] = useState([])
   const [sdk, setSdk] = useState()
   const [data,  setData] = useState([])
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const itemsPerPage = 25
+  const startIndex = currentPage * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const subset = data.slice(startIndex, endIndex)
+  const page_count = Math.ceil((data.length+1)/itemsPerPage)
+
+  const handlePageClick = (selectedPage) => {
+    setCurrentPage(selectedPage.selected);
+  };
 
   useEffect(() => {
     // collect sdks
@@ -67,6 +79,7 @@ const InstalledApps = (pops) => {
   useEffect(()=>{
     console.log(data);
   }, [data])
+
   return (
     <div className='App'>
         <Navbar/>
@@ -95,8 +108,8 @@ const InstalledApps = (pops) => {
               </thead>
               <tbody>
                 {
-                  data? (
-                    data.map((item, indx) => {
+                  subset? (
+                    subset.map((item, indx) => {
                       return(
                         <tr key={indx+1}>
                           <th scope="row">{item.id}</th>
@@ -119,6 +132,27 @@ const InstalledApps = (pops) => {
               </tbody>
             </table>
           </div>
+          <div className=''>
+          <ReactPaginate
+            breakLabel="..."
+            previousLabel="< previous"
+            nextLabel="next >"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={10}
+            pageCount={page_count}
+            marginPagesDisplayed={3}
+            renderOnZeroPageCount={null}
+            containerClassName={'pagination'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+            activeClassName={'active'}
+          />
+            
+        </div>
         </div>
     </div>
   )
