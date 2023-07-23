@@ -2,7 +2,7 @@
 A payment gateway data analysis app that shows the different statistics of different installed apps that uses the payment sdks. Django Rest is used for backend api and React is used for the UI.
 # Installation
 - Clone this repository via `git clone https://github.com/parvez86/MyPaymentsDataAnalysis.git`
-- <b>Backend<b>:
+- <b>Backend</b>:
   - Requires the following packages:
     - Python 3.9.7 or higher
     - Django 4.0 or higher
