@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 class AppSerializer(serializers.ModelSerializer):
     class Meta:
         model =App
-        fields = ['id', 'name', 'company_url', 'genre_id', 'seller_name', 'release_date', 'artwork_large_url', 'five_star_ratings', 'four_star_ratings', 'three_star_ratings', 'two_star_ratings', 'one_star_ratings']
+        fields = ['id', 'name', 'company_url', 'genre_id', 'release_date', 'artwork_large_url', 'seller_name', 'five_star_ratings', 'four_star_ratings', 'three_star_ratings', 'two_star_ratings', 'one_star_ratings']
 
 
 class SdkSerializer(serializers.ModelSerializer):

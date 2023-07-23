@@ -230,6 +230,10 @@
   aspect-ratio: 0.8 / 0.6;
 }
 
+.stat-col:hover {
+  opacity: 0.7;
+}
+
 .stat-col > p{
   font-weight: 600;
   color: rgb(0, 0, 0);
@@ -251,6 +255,11 @@
 .norm-stat-col {
   aspect-ratio: 0.8 / 0.6;
 }
+
+.norm-stat-col:hover {
+  opacity: 0.7;
+}
+
 
 .norm-stat-col > p{
   font-weight: 600;
@@ -275,6 +284,7 @@
 }
 
 .apps-head{
+  margin: 50px 0px;
   width: 100%;
   justify-content: center;
   text-align: center;

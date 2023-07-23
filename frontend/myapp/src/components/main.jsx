@@ -46,11 +46,12 @@ const Main = () => {
     }
   }
 
-  const onStatClick = (data) => {
+  const onStatClick = (id) => {
     // e.preventDefault()
     // console.log("on stat",e.target.getAttribute('data-value'));
-    console.log()
-    let items = data.split('_')
+    console.log(id)
+    
+    let items = id.split('_')
     console.log(items)
     let ids1=[], ids2=[];
     if(items[0]==='none'){
@@ -76,8 +77,11 @@ const Main = () => {
       let index2 = sdks.findIndex((item) => item['name']===items[1])
       ids2 = [sdks[index2]['id']]
     }
+    ids1=ids1.join('_')
+    ids2=ids2.join('_')
     console.log("ids1: ", ids1);
     console.log("ids2: ", ids2);
+    navigate(`stats/${ids1}/${ids2}`)
   }
   
   useEffect(() => {
@@ -218,27 +222,27 @@ const Main = () => {
                         Object.keys(sdkStats).map((item) => {
                           return (
                             <div className='row '>
-                              <div className='col header-col-row'>
+                              <div className='col header-col-row' key={item}>
                                   <p>{item}</p>
                               </div>
                               {
                                 Object.keys(sdkStats[item]).map(((sdk) => {
                                   return (
                                       sdkStats[item][sdk]===0?(
-                                        <div className='col stat-col'>
-                                          <p>{sdkStats[item][sdk]}</p>
+                                        <div className='col stat-col' key={`${item}-${sdk}`}>
+                                          <p onClick={() => onStatClick(`${item}_${sdk}`)}>{sdkStats[item][sdk]}</p>
                                         </div>
                                       ):sdkStats[item][sdk]< 50?(
-                                        <div className='col stat-col' style={{backgroundColor: `rgba(250, 250, 250, .5)`}}>
-                                          <p>{sdkStats[item][sdk]}</p>
+                                        <div className='col stat-col' key={`${item}-${sdk}`} style={{backgroundColor: `rgba(250, 250, 250, .5)`}}>
+                                          <p onClick={() => onStatClick(`${item}_${sdk}`)}>{sdkStats[item][sdk]}</p>
                                         </div>
                                       ):sdkStats[item][sdk]< 500?(
-                                        <div className='col stat-col' style={{backgroundColor: `rgba(225, 0, 0, 0.9)`}}>
-                                          <p>{sdkStats[item][sdk]}</p>
+                                        <div className='col stat-col' key={`${item}-${sdk}`} style={{backgroundColor: `rgba(225, 0, 0, 0.9)`}}>
+                                          <p onClick={() => onStatClick(`${item}_${sdk}`)}>{sdkStats[item][sdk]}</p>
                                         </div>
                                       ):(
-                                        <div className='col stat-col' style={{backgroundColor: `rgba(144, 11, 11, 0.9)`}}>
-                                          <p>{sdkStats[item][sdk]}</p>
+                                        <div className='col stat-col' key={`${item}-${sdk}`} style={{backgroundColor: `rgba(144, 11, 11, 0.9)`}}>
+                                          <p onClick={() => onStatClick(`${item}_${sdk}`)}>{sdkStats[item][sdk]}</p>
                                         </div>
                                       )
                                   )

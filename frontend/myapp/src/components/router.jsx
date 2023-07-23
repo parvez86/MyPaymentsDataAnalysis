@@ -12,7 +12,7 @@ const Router = () => {
         <BrowserRouter>
             <Routes>
                 <Route exact path='' element={<App/>}/>
-                <Route exact path='/stats/:id' element={<InstalledApps/>}/>
+                <Route exact path='/stats/:id1/:id2' element={<InstalledApps/>}/>
             </Routes>
         </BrowserRouter>
   )

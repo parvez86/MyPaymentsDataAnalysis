@@ -1,7 +1,7 @@
 from .models import App, Sdk, AppSdk
 from .serializers import AppSerializer, SdkSerializer, AppSdkSerializer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST,HTTP_204_NO_CONTENT, HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST,HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from rest_framework import viewsets
 import json
 
@@ -18,7 +18,7 @@ class AppViewSet(viewsets.ModelViewSet):
     queryset = App.objects.all()
     serializer_class = AppSerializer
 
-# Create your views here.
+
 class SdkViewSet(viewsets.ModelViewSet):
     """
     A viewset that provides `retrieve`, `create`, and `list` actions.
@@ -222,3 +222,42 @@ class CurrentSDKAppStatisticsViewSet(viewsets.ViewSet):
             "original": results1,
             "norm": results2
         }), status=HTTP_200_OK)
+
+
+class SDKAppListViewSet(viewsets.ViewSet):
+    def list(self, request):
+        return Response({}, status=HTTP_200_OK)
+
+    def post(self, request):
+        # original sdk stats
+        results1 = dict()
+        ids1 = request.data.get("ids1")
+        ids2 = request.data.get("ids2")
+        print("ids1: ", ids1)
+        print("ids2: ", ids2)
+
+        if len(ids1) == 0 or len(ids2) == 0:
+            return Response({}, status=HTTP_400_BAD_REQUEST)
+
+        app_ids = []
+        if len(ids1) == 1:
+            app_ids = app_ids = AppSdk.objects.filter(sdk_id=ids1[0], installed=1).values_list('app_id', flat=True).distinct()
+        else:
+            app_ids = AppSdk.objects.exclude(sdk_id__in=ids1, installed=1).values_list('app_id', flat=True).distinct()
+
+        print("apps ids: ", len(app_ids))
+        apps = []
+        if len(ids2) == 1:
+            seller_name = Sdk.objects.get(id=ids2[0])
+            seller_name = seller_name.slug
+            apps = App.objects.filter(id__in=app_ids, seller_name__contains=seller_name)
+
+        else:
+            seller_names = Sdk.objects.filter(id__in=ids2).values_list('slug', flat=True)
+            print(seller_names)
+            apps = App.objects.exclude(seller_name__contains=seller_names).filter(id__in=app_ids)
+
+        print(len(apps))
+
+        serializer = AppSerializer(apps, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
